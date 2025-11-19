@@ -18,7 +18,10 @@ SECRET_KEY = "django-insecure-r*oe-ltp3ipcp=%)3niw^0&o+np$-8pw60#q)z*f*evr4-pk5r
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-site_domain = config("RAILWAY_PUBLIC_DOMAIN", "")
+site_domain = config(
+    "RAILWAY_PUBLIC_DOMAIN", "fulfil-backend-production.up.railway.app"
+)
+
 CSRF_TRUSTED_ORIGINS = [
     f"https://{site_domain}",
     "http://localhost:4200",
