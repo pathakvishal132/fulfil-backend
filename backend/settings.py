@@ -18,16 +18,17 @@ SECRET_KEY = "django-insecure-r*oe-ltp3ipcp=%)3niw^0&o+np$-8pw60#q)z*f*evr4-pk5r
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+site_domain = config("RAILWAY_PUBLIC_DOMAIN", "")
+CSRF_TRUSTED_ORIGINS = [
+    f"https://{site_domain}",
+    "http://localhost:4200",
+]
 
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     ".vercel.app",
-    "http://localhost:4200",
     ".railway.app",
-]
-CSRF_TRUSTED_ORIGINS = [
-    "http://localhost:4200",
 ]
 
 
