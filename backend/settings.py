@@ -23,12 +23,14 @@ ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
     ".vercel.app",
+    "http://localhost:4200",
 ]
-
-
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:4200",
 ]
+
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 # CORS / frontend origin settings
 # Keep CORS_ALLOW_ALL_ORIGINS during development for convenience; you can
