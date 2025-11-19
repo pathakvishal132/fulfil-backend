@@ -23,6 +23,7 @@ CSRF_TRUSTED_ORIGINS = [
     f"https://{site_domain}",
     "http://localhost:4200",
 ]
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 ALLOWED_HOSTS = [
     "localhost",
