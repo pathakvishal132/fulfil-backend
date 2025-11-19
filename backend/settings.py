@@ -24,6 +24,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     ".vercel.app",
     "http://localhost:4200",
+    ".railway.app",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:4200",
