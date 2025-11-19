@@ -29,6 +29,7 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     ".vercel.app",
     ".railway.app",
+    site_domain,
 ]
 
 
