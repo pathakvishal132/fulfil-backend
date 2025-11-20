@@ -41,6 +41,7 @@ CORS_ALLOWED_ORIGINS = [
 # Allow cookies / authentication to be sent from the frontend if needed.
 CORS_ALLOW_CREDENTIALS = True
 
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -89,6 +90,15 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "backend.wsgi.application"
+
+
+# Integrate django-cors-headers if available; avoid crashing if it's not installed.
+if importlib.util.find_spec("corsheaders") is not None:
+    INSTALLED_APPS.insert(0, "corsheaders")
+    MIDDLEWARE.insert(0, "corsheaders.middleware.CorsMiddleware")
+else:
+    # Not installed; advise using pip to install if you need CORS support.
+    pass
 
 
 # Database
@@ -156,6 +166,13 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 CELERY_BROKER_URL = "redis://localhost:6379/0"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/0"
+
+# Increase request/upload size limits to allow larger CSV uploads in development.
+# Adjust these values as needed. Set to `None` for no limit (use with caution).
+# Note: if you're behind a reverse proxy (nginx, Caddy, etc.) that has its own
+# client body size limit, increase that too (e.g. `client_max_body_size` in nginx).
+DATA_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 100 MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 100 * 1024 * 1024  # 100 MB
 
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"

@@ -25,14 +25,8 @@ class ProductUploadView(APIView):
             return Response(
                 {"error": "CSV file required"}, status=status.HTTP_400_BAD_REQUEST
             )
-
-        # Save CSV temporarily
         file_path = default_storage.save(f"uploads/{file.name}", file)
-
-        # Generate job ID
         job_id = str(uuid.uuid4())
-
-        # Trigger Celery task asynchronously
         process_csv_task.apply_async(args=[file_path, job_id], task_id=job_id)
 
         return Response(
@@ -47,11 +41,9 @@ class ProductUploadStatusView(APIView):
 
     def get(self, request, job_id):
         task_result = AsyncResult(job_id, app=app)
-
         state = task_result.state
 
         def _safe_serialize(obj):
-            # Try to JSON-serialize the object; fall back to str(obj)
             try:
                 return json.loads(json.dumps(obj, default=str))
             except Exception:
@@ -60,7 +52,7 @@ class ProductUploadStatusView(APIView):
         if state == "PENDING":
             return Response({"status": "PENDING"}, status=status.HTTP_202_ACCEPTED)
         elif state == "PROGRESS":
-            # task_result.info expected to contain {'current': x, 'total': y}
+
             return Response(
                 {"status": "PROGRESS", "meta": _safe_serialize(task_result.info)}
             )
@@ -69,7 +61,7 @@ class ProductUploadStatusView(APIView):
                 {"status": "SUCCESS", "result": _safe_serialize(task_result.result)}
             )
         else:
-            # For FAILURE or other states, return state and any info available
+
             info = None
             try:
                 info = _safe_serialize(task_result.info)
@@ -81,7 +73,7 @@ class ProductUploadStatusView(APIView):
 # ----------------- Pagination -----------------
 class ProductPagination(PageNumberPagination):
     page_size = 20
-    page_size_query_param = "pageSize"  # frontend uses pageSize
+    page_size_query_param = "pageSize"
     max_page_size = 100
 
     def get_paginated_response(self, data):
@@ -104,7 +96,7 @@ class ProductListCreateView(generics.ListCreateAPIView):
         if name:
             qs = qs.filter(name__icontains=name)
         if active is not None and active != "":
-            # Accept 'true'/'false' strings
+
             if str(active).lower() in ["true", "1", "yes"]:
                 qs = qs.filter(active=True)
             else:
@@ -117,7 +109,7 @@ class ProductListCreateView(generics.ListCreateAPIView):
         """
         sku = request.data.get("sku")
         if sku:
-            # case-insensitive match to be forgiving about input
+
             existing = Product.objects.filter(sku__iexact=sku).first()
             if existing is not None:
                 serializer = self.get_serializer(existing)
@@ -158,12 +150,9 @@ class UploadChunkView(APIView):
 
         if not upload_id or index is None or chunk is None:
             return Response({"error": "uploadId, index and chunk required"}, status=400)
-
-        # Ensure directory exists
         dir_path = os.path.join(CHUNK_DIR, upload_id)
         os.makedirs(dir_path, exist_ok=True)
 
-        # Save chunk
         chunk_path = os.path.join(dir_path, f"chunk_{index}")
         with open(chunk_path, "wb") as f:
             for data in chunk.chunks():
@@ -181,7 +170,6 @@ class UploadFinalizeView(APIView):
         if not upload_id or not filename:
             return Response({"error": "uploadId and filename required"}, status=400)
 
-        # Reassemble chunks
         dir_path = os.path.join(CHUNK_DIR, upload_id)
         assembled_path = default_storage.path(f"uploads/{filename}")
 
@@ -195,7 +183,6 @@ class UploadFinalizeView(APIView):
                     out.write(c.read())
                 i += 1
 
-        # Trigger celery task
         job_id = str(uuid.uuid4())
         process_csv_task.apply_async(args=[assembled_path, job_id], task_id=job_id)
 
